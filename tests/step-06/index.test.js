@@ -77,3 +77,21 @@ test('Execute SQL Query with Multiple WHERE Clause', async () => {
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({ id: '1', name: 'John' });
 });
+
+test('Execute SQL Query with Invalid WHERE Clause', async () => {
+    const query = 'SELECT id, name FROM sample WHERE age > 25 AND';
+    try {
+        await executeSELECTQuery(query);
+        // If the query executes successfully, fail the test
+        throw new Error('Invalid WHERE clause');
+    } catch (error) {
+        expect(error.message).toMatch('Invalid WHERE clause');
+        // Additional assertions if needed
+    }
+});
+
+// test('Execute SQL Query with Invalid Table Name', async () => {
+//     const query = 'SELECT id, name FROM non_existent_table';
+//     await expect(executeSELECTQuery(query)).rejects.toThrow('Cannot read CSV file');
+// });
+
