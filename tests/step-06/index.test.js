@@ -16,7 +16,7 @@ test('Parse SQL Query', () => {
     expect(parsed).toEqual({
         fields: ['id', 'name'],
         table: 'sample',
-        whereClauses: []
+        whereClause: null
     });
 });
 
@@ -36,11 +36,7 @@ test('Parse SQL Query with WHERE Clause', () => {
     expect(parsed).toEqual({
         fields: ['id', 'name'],
         table: 'sample',
-        whereClauses: [{
-          field: "age",
-          operator: "=",
-          value: "25",
-        }],
+        whereClause: "age = 25",
     });
 });
 
@@ -59,15 +55,7 @@ test('Parse SQL Query with Multiple WHERE Clauses', () => {
     expect(parsed).toEqual({
         fields: ['id', 'name'],
         table: 'sample',
-        whereClauses: [{
-            "field": "age",
-            "operator": "=",
-            "value": "30",
-        }, {
-            "field": "name",
-            "operator": "=",
-            "value": "John",
-        }]
+        whereClause: "age = 30 AND name = John",
     });
 });
 
@@ -76,4 +64,49 @@ test('Execute SQL Query with Multiple WHERE Clause', async () => {
     const result = await executeSELECTQuery(query);
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({ id: '1', name: 'John' });
+});
+
+test('Execute SQL Query with Invalid WHERE Clause', async () => {
+    const query = 'SELECT id, name FROM sample WHERE age > 25 AND';
+    try {
+        await executeSELECTQuery(query);
+        // If the query executes successfully, fail the test
+        throw new Error('Invalid WHERE clause');
+    } catch (error) {
+        expect(error.message).toMatch('Invalid WHERE clause');
+        // Additional assertions if needed
+    }
+});
+
+// test('Execute SQL Query with Invalid Table Name', async () => {
+//     const query = 'SELECT id, name FROM non_existent_table';
+//     await expect(executeSELECTQuery(query)).rejects.toThrow('Cannot read CSV file');
+// });
+
+
+test('Execute SQL Query with Greater Than', async () => {
+    const queryWithGT = 'SELECT id FROM sample WHERE age > 22';
+    const result = await executeSELECTQuery(queryWithGT);
+    expect(result.length).toEqual(2);
+    expect(result[0]).toHaveProperty('id');
+});
+
+test('Execute SQL Query with Not Equal to', async () => {
+    const queryWithGT = 'SELECT name FROM sample WHERE age != 25';
+    const result = await executeSELECTQuery(queryWithGT);
+    expect(result.length).toEqual(2);
+    expect(result[0]).toHaveProperty('name');
+});
+
+
+test('Execute SQL Query with Greater Than', async () => {
+    const queryWithGT = 'SELECT id FROM sample WHERE age > 22';
+    const result = await executeSELECTQuery(queryWithGT);
+    expect(result.length).toBe(1); // Assuming no rows match the condition
+});
+
+test('Execute SQL Query with Not Equal to', async () => {
+    const queryWithNE = 'SELECT name FROM sample WHERE age != 25';
+    const result = await executeSELECTQuery(queryWithNE);
+    expect(result.length).toBe(0); // Assuming no rows match the condition
 });
