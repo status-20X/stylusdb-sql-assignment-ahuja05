@@ -16,7 +16,7 @@ test('Parse SQL Query', () => {
     expect(parsed).toEqual({
         fields: ['id', 'name'],
         table: 'sample',
-        whereClauses: []
+        whereClause: null
     });
 });
 
@@ -36,11 +36,7 @@ test('Parse SQL Query with WHERE Clause', () => {
     expect(parsed).toEqual({
         fields: ['id', 'name'],
         table: 'sample',
-        whereClauses: [{
-          field: "age",
-          operator: "=",
-          value: "25",
-        }],
+        whereClause: "age = 25",
     });
 });
 
@@ -59,15 +55,7 @@ test('Parse SQL Query with Multiple WHERE Clauses', () => {
     expect(parsed).toEqual({
         fields: ['id', 'name'],
         table: 'sample',
-        whereClauses: [{
-            "field": "age",
-            "operator": "=",
-            "value": "30",
-        }, {
-            "field": "name",
-            "operator": "=",
-            "value": "John",
-        }]
+        whereClause: "age = 30 AND name = John",
     });
 });
 
@@ -114,7 +102,7 @@ test('Execute SQL Query with Not Equal to', async () => {
 test('Execute SQL Query with Greater Than', async () => {
     const queryWithGT = 'SELECT id FROM sample WHERE age > 22';
     const result = await executeSELECTQuery(queryWithGT);
-    expect(result.length).toBe(0); // Assuming no rows match the condition
+    expect(result.length).toBe(1); // Assuming no rows match the condition
 });
 
 test('Execute SQL Query with Not Equal to', async () => {

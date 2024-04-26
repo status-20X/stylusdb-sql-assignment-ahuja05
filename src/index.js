@@ -4,11 +4,14 @@ const readCSV = require('./csvReader');
 
 async function executeSELECTQuery(query) {
     try {
-        const { fields, table, whereClauses} = parseQuery(query);
+        const { fields, table, whereClause} = parseQuery(query);
         const data = await readCSV(`${table}.csv`);
         
-        const filteredData = whereClauses.length > 0
-        ? data.filter(row => whereClauses.every(clause => evaluateCondition(row, clause)))
+        const filteredData = whereClause
+        ? data.filter(row => {
+            const [field, value] = whereClause.split('=').map(s => s.trim());
+            return row[field] === value;
+        })
         : data;
 
     // Select the specified fields
